@@ -202,7 +202,7 @@ credentials never cross between clients:
 
 ## Deploying
 
-Push to `master` — GitHub Actions auto-deploys via `.github/workflows/deploy.yml`. Before you do:
+Push to `main` — GitHub Actions auto-deploys via `.github/workflows/deploy.yml`. Before you do:
 
 - [ ] Repo pushed to GitHub, with a `TRIGGER_ACCESS_TOKEN` secret set (repo Settings -> Secrets
       and variables -> Actions -> New repository secret). Get the token value from
