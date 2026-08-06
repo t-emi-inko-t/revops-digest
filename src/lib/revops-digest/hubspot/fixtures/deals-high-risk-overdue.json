@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1002",
+    "properties": {
+      "dealname": "Globex Inc - Expansion Deal",
+      "dealstage": "contractsent",
+      "pipeline": "default",
+      "amount": "88000",
+      "closedate": "2026-07-26",
+      "hubspot_owner_id": "owner-2",
+      "hs_lastmodifieddate": "2026-08-03T22:35:53.844Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-2" }] },
+      "contacts": { "results": [{ "id": "contact-2" }] }
+    }
+  }
+]

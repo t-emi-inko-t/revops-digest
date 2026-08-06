@@ -1,0 +1,98 @@
+[
+  {
+    "id": "2001",
+    "properties": {
+      "dealname": "HIGH (inactive) - smaller amount",
+      "dealstage": "presentationscheduled",
+      "pipeline": "default",
+      "amount": "42000",
+      "closedate": "2026-09-04",
+      "hubspot_owner_id": "owner-1",
+      "hs_lastmodifieddate": "2026-07-15T22:35:53.825Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-10" }] },
+      "contacts": { "results": [] }
+    }
+  },
+  {
+    "id": "2002",
+    "properties": {
+      "dealname": "HIGH (overdue) - larger amount, should rank first in HIGH",
+      "dealstage": "contractsent",
+      "pipeline": "default",
+      "amount": "95000",
+      "closedate": "2026-07-26",
+      "hubspot_owner_id": "owner-2",
+      "hs_lastmodifieddate": "2026-08-03T22:35:53.844Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-11" }] },
+      "contacts": { "results": [] }
+    }
+  },
+  {
+    "id": "2003",
+    "properties": {
+      "dealname": "MEDIUM (inactive) - smaller amount",
+      "dealstage": "qualifiedtobuy",
+      "pipeline": "default",
+      "amount": "15000",
+      "closedate": "2026-11-03",
+      "hubspot_owner_id": "owner-1",
+      "hs_lastmodifieddate": "2026-07-27T22:35:53.843Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-12" }] },
+      "contacts": { "results": [] }
+    }
+  },
+  {
+    "id": "2004",
+    "properties": {
+      "dealname": "MEDIUM (inactive) - larger amount, should rank first in MEDIUM",
+      "dealstage": "qualifiedtobuy",
+      "pipeline": "default",
+      "amount": "30000",
+      "closedate": "2026-11-03",
+      "hubspot_owner_id": "owner-2",
+      "hs_lastmodifieddate": "2026-07-27T22:35:53.843Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-13" }] },
+      "contacts": { "results": [] }
+    }
+  },
+  {
+    "id": "2005",
+    "properties": {
+      "dealname": "Healthy deal - should not appear in either tier",
+      "dealstage": "appointmentscheduled",
+      "pipeline": "default",
+      "amount": "5000",
+      "closedate": "2026-11-03",
+      "hubspot_owner_id": "owner-1",
+      "hs_lastmodifieddate": "2026-08-04T22:35:53.844Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-14" }] },
+      "contacts": { "results": [] }
+    }
+  },
+  {
+    "id": "2006",
+    "properties": {
+      "dealname": "Closed + stale + huge amount - must NOT be flagged (closed deals are exempt)",
+      "dealstage": "closedwon",
+      "pipeline": "default",
+      "amount": "99000",
+      "closedate": "2026-06-01",
+      "hubspot_owner_id": "owner-2",
+      "hs_lastmodifieddate": "2026-07-15T22:35:53.825Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-15" }] },
+      "contacts": { "results": [] }
+    }
+  }
+]

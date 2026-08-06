@@ -1,0 +1,22 @@
+import type { RankedDigest, ScoredDeal } from "../types.js";
+
+/** Groups scored deals into HIGH/MEDIUM (LOW is dropped — it's never delivered), sorting each
+ * group by dollar amount descending so the biggest exposure is always first. */
+export function rankDeals(
+  scored: ScoredDeal[],
+  weekOf: string,
+  thresholds: { highInactivityDays: number; mediumInactivityDays: number }
+): RankedDigest {
+  const high = scored.filter((d) => d.riskTier === "HIGH").sort((a, b) => b.amount - a.amount);
+  const medium = scored.filter((d) => d.riskTier === "MEDIUM").sort((a, b) => b.amount - a.amount);
+
+  return {
+    generatedAt: new Date().toISOString(),
+    weekOf,
+    high,
+    medium,
+    totalDealsScanned: scored.length,
+    hasFlags: high.length + medium.length > 0,
+    thresholds,
+  };
+}

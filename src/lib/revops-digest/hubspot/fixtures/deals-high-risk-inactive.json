@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1001",
+    "properties": {
+      "dealname": "Acme Corp - Platform Renewal",
+      "dealstage": "presentationscheduled",
+      "pipeline": "default",
+      "amount": "42000",
+      "closedate": "2026-09-04",
+      "hubspot_owner_id": "owner-1",
+      "hs_lastmodifieddate": "2026-07-15T22:35:53.825Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-1" }] },
+      "contacts": { "results": [{ "id": "contact-1" }] }
+    }
+  }
+]

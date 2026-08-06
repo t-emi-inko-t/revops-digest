@@ -1,0 +1,18 @@
+[
+  {
+    "id": "1003",
+    "properties": {
+      "dealname": "Initech - Support Add-on",
+      "dealstage": "qualifiedtobuy",
+      "pipeline": "default",
+      "amount": "15000",
+      "closedate": "2026-11-03",
+      "hubspot_owner_id": "owner-1",
+      "hs_lastmodifieddate": "2026-07-27T22:35:53.843Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-3" }] },
+      "contacts": { "results": [{ "id": "contact-3" }] }
+    }
+  }
+]

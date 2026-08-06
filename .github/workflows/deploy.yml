@@ -1,0 +1,28 @@
+name: Deploy to Trigger.dev (prod)
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Deploy Trigger.dev
+        env:
+          TRIGGER_ACCESS_TOKEN: ${{ secrets.TRIGGER_ACCESS_TOKEN }}
+        # Pinned to match the @trigger.dev/sdk version in package.json — a CLI/SDK version
+        # mismatch fails the deploy outright (hit this locally during development; see README).
+        run: npx trigger.dev@4.5.9 deploy

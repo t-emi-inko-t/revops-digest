@@ -1,0 +1,34 @@
+[
+  {
+    "id": "1004",
+    "properties": {
+      "dealname": "Umbrella Co - New Business",
+      "dealstage": "appointmentscheduled",
+      "pipeline": "default",
+      "amount": "9000",
+      "closedate": "2026-11-03",
+      "hubspot_owner_id": "owner-2",
+      "hs_lastmodifieddate": "2026-08-04T22:35:53.844Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-4" }] },
+      "contacts": { "results": [{ "id": "contact-4" }] }
+    }
+  },
+  {
+    "id": "1005",
+    "properties": {
+      "dealname": "Soylent Corp - Renewal (Won)",
+      "dealstage": "closedwon",
+      "pipeline": "default",
+      "amount": "12000",
+      "closedate": "2026-06-01",
+      "hubspot_owner_id": "owner-1",
+      "hs_lastmodifieddate": "2026-07-15T22:35:53.825Z"
+    },
+    "associations": {
+      "companies": { "results": [{ "id": "company-5" }] },
+      "contacts": { "results": [{ "id": "contact-5" }] }
+    }
+  }
+]
