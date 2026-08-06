@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch: {}   # lets you manually click "Run workflow" from the Actions tab
 
 jobs:
   deploy:
