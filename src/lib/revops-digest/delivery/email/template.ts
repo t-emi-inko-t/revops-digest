@@ -20,6 +20,13 @@ const STATUS_GOOD = "#0ca30c";
 const FONT = `font-family: -apple-system, "Segoe UI", Arial, sans-serif;`;
 const TABULAR = `font-variant-numeric: tabular-nums;`;
 
+// Layout constants for the Executive Summary block (heading, Reporting Period line, narrative
+// paragraph). Change the values here — nowhere else — to adjust indent or spacer height. Exported
+// so verify-email-layout.ts can assert against the same source of truth instead of duplicating
+// the literals.
+export const SUMMARY_BLOCK_INDENT = 10; // px, left padding applied to each row's <td>, not to the KPI card row
+export const SUMMARY_BLOCK_SPACER = 20; // px, height of the spacer row between the KPI card row and the Reporting Period line
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -174,25 +181,38 @@ function renderFooter(digest: RankedDigest, timezone: string): string {
     </table>`;
 }
 
-function renderMasthead(digest: RankedDigest, brand: BrandConfig): string {
+/** When brand.headerImageUrl is set, the whole masthead is the client's own designed banner
+ * image — no text overlay, since the image already carries the branding. Falls back to a plain
+ * text masthead (with an optional small logo) for clients who haven't supplied a header image
+ * yet. */
+function renderMasthead(brand: BrandConfig): string {
+  if (brand.headerImageUrl) {
+    // Left-aligned at the same 32px inset as the body content below it (not centered) so the
+    // banner's left edge lines up with "Executive Summary" and everything else in the card.
+    return `
+      <tr><td style="padding:28px 32px 0;line-height:0;font-size:0;">
+        <img src="${escapeHtml(brand.headerImageUrl)}" alt="${escapeHtml(brand.companyName)}" width="600" style="display:block;max-width:100%;height:auto;border:0;" />
+      </td></tr>`;
+  }
+
   const logo = brand.logoUrl
     ? `<img src="${escapeHtml(brand.logoUrl)}" alt="${escapeHtml(brand.companyName)}" height="28" style="display:block;margin-bottom:10px;border:0;" />`
     : "";
 
   return `
-    <tr><td class="header-band" style="background:${brand.primaryColor};padding:28px 32px;">
+    <tr><td class="header-band" style="background:${brand.primaryColor};padding:28px 32px;border-bottom:1px solid ${BORDER};">
       ${logo}
       <div class="header-text" style="${FONT} font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${brand.onPrimaryColor};opacity:0.75;font-weight:600;">${escapeHtml(brand.companyName)}</div>
       <div class="header-text" style="${FONT} font-size:22px;font-weight:700;color:${brand.onPrimaryColor};margin-top:6px;">${escapeHtml(brand.reportTitle)}</div>
-      <div class="header-text" style="${FONT} font-size:13px;color:${brand.onPrimaryColor};opacity:0.75;margin-top:4px;">Reporting Period: ${formatReportPeriod(digest.weekOf)}</div>
     </td></tr>`;
 }
 
 /** Wraps the report body in a complete HTML document with explicit dark-mode opt-out. Without
- * this, Gmail/Outlook.com's automatic dark-mode remapping can repaint inline colors on a dark
- * masthead (e.g. white-on-black) into something illegible — the `color-scheme` meta tags and the
- * `[data-ogsc]` override below are the standard fix, forcing the client to render our colors
- * as-authored instead of "helpfully" inverting them. */
+ * this, Gmail/Outlook.com's automatic dark-mode remapping can repaint inline colors on a text
+ * masthead into something illegible — the `color-scheme` meta tags and the `[data-ogsc]`
+ * override below are the standard fix, forcing the client to render our colors as-authored
+ * instead of "helpfully" inverting them. Only applies to the text-masthead fallback; a
+ * headerImageUrl banner is a plain image and isn't affected by inline-color remapping. */
 function wrapDocument(bodyHtml: string, brand: BrandConfig): string {
   return `<!doctype html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -217,6 +237,25 @@ ${bodyHtml}
 </html>`;
 }
 
+/** Executive Summary heading, KPI card row, Reporting Period line, and narrative paragraph as
+ * their own table rows — not sibling divs — so the SUMMARY_BLOCK_INDENT left padding can be
+ * scoped to individual <td>s (heading / Reporting Period / narrative) without leaking onto the
+ * KPI row's <td>, and the SUMMARY_BLOCK_SPACER gap is a dedicated spacer row rather than a
+ * margin that Outlook's Word rendering engine can drop. */
+function renderSummaryBlock(digest: RankedDigest, currency: string, brand: BrandConfig): string {
+  const heading = `<div style="${FONT} font-size:11px;letter-spacing:0.6px;text-transform:uppercase;color:${INK_MUTED};font-weight:600;border-bottom:2px solid ${brand.accentColor};display:inline-block;padding-bottom:4px;">Executive Summary</div>`;
+  const reportingPeriod = `<div style="${FONT} font-size:12px;color:${INK_MUTED};">Reporting Period: ${formatReportPeriod(digest.weekOf)}</div>`;
+
+  return `
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr><td style="padding-left:${SUMMARY_BLOCK_INDENT}px;">${heading}</td></tr>
+      <tr><td><div style="margin-top:14px;">${renderKpiRow(digest, currency)}</div></td></tr>
+      <tr><td height="${SUMMARY_BLOCK_SPACER}" style="height:${SUMMARY_BLOCK_SPACER}px;line-height:${SUMMARY_BLOCK_SPACER}px;font-size:0;mso-line-height-rule:exactly;">&nbsp;</td></tr>
+      <tr><td style="padding-left:${SUMMARY_BLOCK_INDENT}px;">${reportingPeriod}</td></tr>
+      <tr><td style="padding-left:${SUMMARY_BLOCK_INDENT}px;">${renderNarrative(digest)}</td></tr>
+    </table>`;
+}
+
 export function renderDigestHtml(digest: RankedDigest, currency: string, timezone: string, brand: BrandConfig): string {
   const sections = digest.hasFlags
     ? `${renderSection("I", "High Risk — Immediate Attention Required", "HIGH", digest.high, currency)}${renderSection("II", "Medium Risk — Monitor Closely", "MEDIUM", digest.medium, currency)}`
@@ -225,11 +264,9 @@ export function renderDigestHtml(digest: RankedDigest, currency: string, timezon
   const body = `
     <div style="${FONT} background:${PAGE};padding:24px 12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;margin:0 auto;background:${SURFACE};border:1px solid ${BORDER};">
-        ${renderMasthead(digest, brand)}
+        ${renderMasthead(brand)}
         <tr><td style="padding:28px 32px;">
-          <div style="${FONT} font-size:11px;letter-spacing:0.6px;text-transform:uppercase;color:${INK_MUTED};font-weight:600;border-bottom:2px solid ${brand.accentColor};display:inline-block;padding-bottom:4px;">Executive Summary</div>
-          <div style="margin-top:14px;">${renderKpiRow(digest, currency)}</div>
-          ${renderNarrative(digest)}
+          ${renderSummaryBlock(digest, currency, brand)}
           ${sections}
           ${renderFooter(digest, timezone)}
         </td></tr>

@@ -50,8 +50,9 @@ export function loadBrandConfig(): BrandConfig {
     companyName: process.env.BRAND_COMPANY_NAME || "RevOps Intelligence",
     reportTitle: process.env.BRAND_REPORT_TITLE || "Weekly Health Digest",
     logoUrl: process.env.BRAND_LOGO_URL || null,
-    primaryColor: process.env.BRAND_PRIMARY_COLOR || "#0b0b0b",
-    onPrimaryColor: process.env.BRAND_ON_PRIMARY_COLOR || "#ffffff",
+    headerImageUrl: process.env.BRAND_HEADER_IMAGE_URL || null,
+    primaryColor: process.env.BRAND_PRIMARY_COLOR || "#ffffff",
+    onPrimaryColor: process.env.BRAND_ON_PRIMARY_COLOR || "#0b0b0b",
     accentColor: process.env.BRAND_ACCENT_COLOR || "#2a78d6",
   };
 }

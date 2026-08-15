@@ -64,9 +64,10 @@ export interface FetchAndScoreConfig {
 export interface BrandConfig {
   companyName: string;
   reportTitle: string;
-  logoUrl: string | null;
-  primaryColor: string; // masthead background
-  onPrimaryColor: string; // text color against primaryColor — must stay high-contrast
+  logoUrl: string | null; // small logo shown in the fallback text masthead, when no headerImageUrl is set
+  headerImageUrl: string | null; // full-width custom header banner; replaces the entire masthead when set
+  primaryColor: string; // masthead background (fallback masthead only)
+  onPrimaryColor: string; // text color against primaryColor — must stay high-contrast (fallback masthead only)
   accentColor: string; // section-label underline, small accents
 }
 

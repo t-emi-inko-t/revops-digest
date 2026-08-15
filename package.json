@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "npx trigger.dev@latest dev",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:email-layout": "tsx scripts/verify-email-layout.ts"
   },
   "dependencies": {
     "@trigger.dev/sdk": "4.5.9"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.5.0"
   }
 }
