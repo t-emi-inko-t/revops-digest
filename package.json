@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "npx trigger.dev@latest dev",
     "typecheck": "tsc --noEmit",
-    "verify:email-layout": "tsx scripts/verify-email-layout.ts"
+    "verify:email-layout": "tsx scripts/verify-email-layout.ts",
+    "verify:digest-anchor": "tsx scripts/verify-digest-anchor.ts",
+    "verify": "npm run typecheck && npm run verify:email-layout && npm run verify:digest-anchor"
   },
   "dependencies": {
     "@trigger.dev/sdk": "4.5.9"

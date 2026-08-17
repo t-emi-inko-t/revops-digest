@@ -1,4 +1,4 @@
-import { renderDigestHtml, SUMMARY_BLOCK_INDENT, SUMMARY_BLOCK_SPACER } from "../src/lib/revops-digest/delivery/email/template.js";
+import { renderDigestHtml, SUMMARY_BLOCK_INDENT, SUMMARY_BLOCK_SPACER, CONTENT_GUTTER } from "../src/lib/revops-digest/delivery/email/template.js";
 import { scoreFixtureFile } from "../src/lib/revops-digest/hubspot/fixtures/load-fixture.js";
 import type { BrandConfig, ScoringConfig } from "../src/lib/revops-digest/types.js";
 
@@ -73,6 +73,20 @@ const reportingPeriodIndex = html.indexOf("Reporting Period:");
 assert(spacerIndex !== -1, `spacer row with height:${SUMMARY_BLOCK_SPACER}px and mso-line-height-rule:exactly is present`);
 assert(kpiIndex !== -1 && spacerIndex > kpiIndex, "spacer row renders after the KPI card row");
 assert(spacerIndex !== -1 && reportingPeriodIndex > spacerIndex, "spacer row renders before the Reporting Period line");
+
+// 5. Gutter: body cell and both masthead variants derive from the same CONTENT_GUTTER constant.
+const bodyCellGutter = `padding:28px ${CONTENT_GUTTER}px;`;
+assert(html.includes(`<tr><td class="header-band" style="background:${brand.primaryColor};padding:28px ${CONTENT_GUTTER}px;`), `text-fallback masthead <td> has padding:28px ${CONTENT_GUTTER}px (same CONTENT_GUTTER as the body cell)`);
+assert(html.includes(bodyCellGutter), `body <td> has ${bodyCellGutter}`);
+
+// 6. Image-masthead variant: same CONTENT_GUTTER, and the image is percentage-sized (not a fixed
+// px width that could diverge from everything else's percentage-relative sizing).
+const brandWithImage: BrandConfig = { ...brand, headerImageUrl: "https://example.com/header.png" };
+const htmlWithImage = renderDigestHtml(digest, "USD", "America/Sao_Paulo", brandWithImage);
+const imageMastheadGutter = `padding:28px ${CONTENT_GUTTER}px 0;`;
+assert(htmlWithImage.includes(imageMastheadGutter), `image-masthead <td> has ${imageMastheadGutter} (same CONTENT_GUTTER as the body cell)`);
+assert(htmlWithImage.includes('<img src="https://example.com/header.png"') && htmlWithImage.includes('width="100%"'), "header image uses width=\"100%\" (percentage-relative, matching every other block) not a fixed px width");
+assert(!htmlWithImage.includes('width="600"'), "header image no longer hardcodes a fixed 600px width");
 
 if (failed) {
   console.error("\nEmail layout verification FAILED.");

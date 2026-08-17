@@ -28,8 +28,9 @@ const FIXTURES: Record<string, RawHubSpotDeal[]> = {
 /** Shared by the debug tasks (debug-score-fixture, debug-render-email-html) — loads a fixture
  * by name and runs it through the real normalize -> score -> rank pipeline, so both tasks
  * exercise identical logic to what production Task 1 runs, just against fixture data instead
- * of a live HubSpot token. */
-export function scoreFixtureFile(fixtureFile: string, scoringConfig: ScoringConfig): RankedDigest {
+ * of a live HubSpot token. `now` defaults to the live clock — fine here since this is dev-only
+ * tooling, unlike the production task where scoreDeals/rankDeals require an explicit `now`. */
+export function scoreFixtureFile(fixtureFile: string, scoringConfig: ScoringConfig, now: Date = new Date()): RankedDigest {
   const deals = FIXTURES[fixtureFile];
   if (!deals) {
     throw new Error(`Unknown fixture "${fixtureFile}". Available: ${Object.keys(FIXTURES).join(", ")}`);
@@ -48,9 +49,14 @@ export function scoreFixtureFile(fixtureFile: string, scoringConfig: ScoringConf
   }
 
   const normalized = normalizeHubSpotDeals(deals, companyNames, ownerNames);
-  const scored = scoreDeals(normalized, scoringConfig);
-  return rankDeals(scored, getMondayOf(new Date()), {
-    highInactivityDays: scoringConfig.highInactivityDays,
-    mediumInactivityDays: scoringConfig.mediumInactivityDays,
-  });
+  const scored = scoreDeals(normalized, scoringConfig, now);
+  return rankDeals(
+    scored,
+    getMondayOf(now),
+    {
+      highInactivityDays: scoringConfig.highInactivityDays,
+      mediumInactivityDays: scoringConfig.mediumInactivityDays,
+    },
+    now
+  );
 }

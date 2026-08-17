@@ -7,7 +7,12 @@ function daysBetween(from: Date, to: Date): number {
 }
 
 /**
- * Pure risk-scoring function — no I/O, no Date.now() side effects unless `now` is omitted.
+ * Pure risk-scoring function — `now` is required (no internal Date.now()/new Date() default) so
+ * every call site is forced to pass the SAME anchor it uses for rankDeals()'s generatedAt. Two
+ * independent "fresh" clock reads a few lines apart is how a run's footer timestamp and its
+ * days-since-activity figures can end up computed at technically-different moments — harmless in
+ * the normal case (milliseconds apart), but exactly the kind of implicit default that lets a
+ * caller forget to pass a shared anchor at all.
  * Contractor handoff notes:
  *
  * Rules implemented (see requirements doc for the full spec this was built against):
@@ -37,11 +42,7 @@ function daysBetween(from: Date, to: Date): number {
  * GET /crm/v3/pipelines/deals, and in this function flag any transition within the last 30 days
  * where the new stage's order is LOWER than a stage it previously held — push a MEDIUM reason.
  */
-export function scoreDeals(
-  deals: NormalizedDeal[],
-  config: ScoringConfig,
-  now: Date = new Date()
-): ScoredDeal[] {
+export function scoreDeals(deals: NormalizedDeal[], config: ScoringConfig, now: Date): ScoredDeal[] {
   return deals.map((deal) => scoreDeal(deal, config, now));
 }
 

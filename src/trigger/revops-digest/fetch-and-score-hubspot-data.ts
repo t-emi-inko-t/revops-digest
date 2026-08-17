@@ -19,6 +19,13 @@ export const fetchAndScoreHubspotData = schedules.task({
   run: async (payload) => {
     const config = loadFetchAndScoreConfig();
 
+    // Single anchor for this run — scoreDeals()'s days-since-activity/threshold math and
+    // rankDeals()'s generatedAt both derive from this exact Date instance, so they can never
+    // drift apart within a run. weekOf deliberately stays anchored to payload.timestamp (the
+    // SCHEDULED fire time) rather than `now` — that's what protects the reported calendar week
+    // from misattribution if execution is delayed or retried across a day boundary.
+    const now = new Date();
+
     let rawResult;
     try {
       rawResult = await fetchRecentDeals(config.hubspotAccessToken, {
@@ -36,12 +43,17 @@ export const fetchAndScoreHubspotData = schedules.task({
     }
 
     const normalized = normalizeHubSpotDeals(rawResult.deals, rawResult.companyNames, rawResult.ownerNames);
-    const scored = scoreDeals(normalized, config.scoring);
+    const scored = scoreDeals(normalized, config.scoring, now);
     const weekOf = getMondayOf(payload.timestamp);
-    const digest = rankDeals(scored, weekOf, {
-      highInactivityDays: config.scoring.highInactivityDays,
-      mediumInactivityDays: config.scoring.mediumInactivityDays,
-    });
+    const digest = rankDeals(
+      scored,
+      weekOf,
+      {
+        highInactivityDays: config.scoring.highInactivityDays,
+        mediumInactivityDays: config.scoring.mediumInactivityDays,
+      },
+      now
+    );
 
     const result = await deliverDigest.triggerAndWait(digest, {
       idempotencyKey: `revops-digest-${weekOf}`,

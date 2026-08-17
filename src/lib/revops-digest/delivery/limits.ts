@@ -7,3 +7,13 @@
  * Deals are already ranked by dollar exposure descending, so truncating to the top N surfaces
  * exactly the deals that matter most; the remainder is summarized instead of dropped silently. */
 export const MAX_DEALS_LISTED_PER_TIER = 25;
+
+/** Max age (hours) of a RankedDigest.generatedAt that deliverDigest will actually send. Hit in
+ * production — an Aug-7-computed digest was replayed/re-triggered on Aug 15 and delivered with
+ * every days-since-activity figure and the footer timestamp silently anchored to Aug 7, quietly
+ * understating every deal's real risk age by over a week. deliverDigest trusts its entire payload
+ * (it does no date computation of its own), so a Trigger.dev dashboard "Replay" of an old run, or
+ * any manual re-trigger reusing a stale payload, sails through with no warning otherwise. 48h is
+ * generous for legitimate retries/delays around the weekly cron while still catching a
+ * multi-day-stale replay. */
+export const MAX_DIGEST_AGE_HOURS = 48;

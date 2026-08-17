@@ -27,6 +27,10 @@ const TABULAR = `font-variant-numeric: tabular-nums;`;
 export const SUMMARY_BLOCK_INDENT = 10; // px, left padding applied to each row's <td>, not to the KPI card row
 export const SUMMARY_BLOCK_SPACER = 20; // px, height of the spacer row between the KPI card row and the Reporting Period line
 
+// Single source of truth for the card's left/right gutter — masthead and body cell both derive
+// from this so they can never drift apart the way two independently-hardcoded "32"s can.
+export const CONTENT_GUTTER = 32; // px, left/right padding on the masthead <td> and the body <td>
+
 function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
@@ -187,11 +191,17 @@ function renderFooter(digest: RankedDigest, timezone: string): string {
  * yet. */
 function renderMasthead(brand: BrandConfig): string {
   if (brand.headerImageUrl) {
-    // Left-aligned at the same 32px inset as the body content below it (not centered) so the
-    // banner's left edge lines up with "Executive Summary" and everything else in the card.
+    // Left-aligned at the same CONTENT_GUTTER inset as the body content below it (not centered)
+    // so the banner's left edge lines up with "Executive Summary" and everything else in the
+    // card. width="100%" (not a fixed px width) so the image resolves against its <td>'s content
+    // box the same way every other block does — a fixed-px image and percentage-relative siblings
+    // can render at different absolute widths even when their padding is coded identically, which
+    // is the most likely cause of the header drifting from the body in some clients. The ~2.7%
+    // upscale from this image's native 600px this costs is not visible; guaranteed alignment
+    // across clients is worth more here than native-resolution crispness.
     return `
-      <tr><td style="padding:28px 32px 0;line-height:0;font-size:0;">
-        <img src="${escapeHtml(brand.headerImageUrl)}" alt="${escapeHtml(brand.companyName)}" width="600" style="display:block;max-width:100%;height:auto;border:0;" />
+      <tr><td style="padding:28px ${CONTENT_GUTTER}px 0;line-height:0;font-size:0;">
+        <img src="${escapeHtml(brand.headerImageUrl)}" alt="${escapeHtml(brand.companyName)}" width="100%" style="display:block;width:100%;max-width:100%;height:auto;border:0;" />
       </td></tr>`;
   }
 
@@ -200,7 +210,7 @@ function renderMasthead(brand: BrandConfig): string {
     : "";
 
   return `
-    <tr><td class="header-band" style="background:${brand.primaryColor};padding:28px 32px;border-bottom:1px solid ${BORDER};">
+    <tr><td class="header-band" style="background:${brand.primaryColor};padding:28px ${CONTENT_GUTTER}px;border-bottom:1px solid ${BORDER};">
       ${logo}
       <div class="header-text" style="${FONT} font-size:11px;letter-spacing:2px;text-transform:uppercase;color:${brand.onPrimaryColor};opacity:0.75;font-weight:600;">${escapeHtml(brand.companyName)}</div>
       <div class="header-text" style="${FONT} font-size:22px;font-weight:700;color:${brand.onPrimaryColor};margin-top:6px;">${escapeHtml(brand.reportTitle)}</div>
@@ -265,7 +275,7 @@ export function renderDigestHtml(digest: RankedDigest, currency: string, timezon
     <div style="${FONT} background:${PAGE};padding:24px 12px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;margin:0 auto;background:${SURFACE};border:1px solid ${BORDER};">
         ${renderMasthead(brand)}
-        <tr><td style="padding:28px 32px;">
+        <tr><td style="padding:28px ${CONTENT_GUTTER}px;">
           ${renderSummaryBlock(digest, currency, brand)}
           ${sections}
           ${renderFooter(digest, timezone)}
